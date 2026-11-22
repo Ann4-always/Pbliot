@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Monitoring Listrik IoT</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --bg-grad-top: #313f82;
+      --bg-grad-mid: #23306b;
+      --bg-grad-bottom: #141c47;
+      --card-bg-top: #f8fafc;
+      --card-bg-bottom: #e5e9f2;
+      --btn-navy: #28357a;
+      --btn-navy-hover: #1b2459;
+      --accent-gold: #facc15;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1.25rem;
+      background: linear-gradient(180deg, var(--bg-grad-top) 0%, var(--bg-grad-mid) 55%, var(--bg-grad-bottom) 100%);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* Kartu Login Terpusat */
+    .login-card {
+      width: 100%;
+      max-width: 390px;
+      background: linear-gradient(180deg, var(--card-bg-top) 0%, var(--card-bg-bottom) 100%);
+      border-radius: 22px;
+      padding: 2.25rem 1.85rem;
+      box-shadow: 0 18px 40px rgba(10, 15, 40, 0.45);
+      border: 1px solid rgba(255, 255, 255, 0.65);
+    }
+
+    .brand-title {
+      font-weight: 800;
+      font-size: 1.42rem;
+      color: #1e293b;
+      letter-spacing: -0.2px;
+      margin-bottom: 0.25rem;
+    }
+
+    .brand-subtitle {
+      font-size: 0.92rem;
+      color: #64748b;
+      font-weight: 500;
+      margin-bottom: 1.25rem;
+    }
+
+    /* Switcher Peran User & Admin */
+    .role-switcher {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background-color: #dbe2ef;
+      padding: 4px;
+      border-radius: 12px;
+      margin-bottom: 1.4rem;
+    }
+
+    .role-btn {
+      border: none;
+      background: transparent;
+      color: #475569;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 0.48rem 0.75rem;
+      border-radius: 9px;
+      transition: all 0.2s ease;
+    }
+
+    .role-btn.active {
+      background-color: var(--btn-navy);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(27, 36, 89, 0.28);
+    }
+
+    /* Label & Input Form */
+    .field-label {
+      font-weight: 700;
+      font-size: 0.86rem;
+      color: #1e293b;
+      margin-bottom: 0.4rem;
+    }
+
+    .login-input {
+      background-color: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 0.62rem 0.9rem;
+      font-size: 0.94rem;
+      color: #0f172a;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .login-input:focus {
+      border-color: var(--btn-navy);
+      box-shadow: 0 0 0 3px rgba(40, 53, 122, 0.16);
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-wrapper .login-input {
+      padding-right: 2.6rem;
+    }
+
+    .toggle-pass-btn {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: none;
+      background: transparent;
+      color: #64748b;
+      padding: 0.2rem 0.35rem;
+    }
+
+    .toggle-pass-btn:hover {
+      color: #1e293b;
+    }
+
+    /* Tombol Login Utama */
+    .btn-login-submit {
+      width: 100%;
+      background-color: var(--btn-navy);
+      border: none;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.98rem;
+      padding: 0.72rem 1rem;
+      border-radius: 10px;
+      margin-top: 0.5rem;
+      box-shadow: 0 4px 12px rgba(40, 53, 122, 0.3);
+      transition: background-color 0.2s ease, transform 0.15s ease;
+    }
+
+    .btn-login-submit:hover {
+      background-color: var(--btn-navy-hover);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .default-hint {
+      text-align: center;
+      font-size: 0.8rem;
+      color: #64748b;
+      margin-top: 1rem;
+      margin-bottom: 0;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="login-card">
+    <!-- Judul & Subjudul -->
+    <div class="text-center">
+      <h1 class="brand-title">Monitoring Listrik IoT</h1>
+      <p class="brand-subtitle" id="role-subtitle">Login Administrator</p>
+    </div>
+
+    <!-- Pemilih Peran User / Admin -->
+    <div class="role-switcher" role="tablist" aria-label="Pilih Peran Login">
+      <button type="button" class="role-btn" data-role="user" id="tab-user">
+        <i class="bi bi-person me-1"></i>User
+      </button>
+      <button type="button" class="role-btn active" data-role="admin" id="tab-admin">
+        <i class="bi bi-shield-lock me-1"></i>Admin
+      </button>
+    </div>
+
+    <!-- Pesan Error / Sukses -->
+    <div id="login-alert" class="alert alert-danger py-2 px-3 small d-none" role="alert"></div>
+
+    <!-- Form Login -->
+    <form id="login-form" autocomplete="off">
+      <div class="mb-3">
+        <label for="username" class="form-label field-label">Username :</label>
+        <input
+          type="text"
+          class="form-control login-input"
+          id="username"
+          placeholder="Masukkan username"
+          value="admin"
+          required
+        >
+      </div>
+
+      <div class="mb-4">
+        <label for="password" class="form-label field-label">Password :</label>
+        <div class="password-wrapper">
+          <input
+            type="password"
+            class="form-control login-input"
+            id="password"
+            placeholder="Masukkan password"
+            value="admin"
+            required
+          >
+          <button type="button" class="toggle-pass-btn" id="toggle-password" aria-label="Tampilkan atau sembunyikan password">
+            <i class="bi bi-eye" id="eye-icon"></i>
+          </button>
+        </div>
+      </div>
+
+      <button type="submit" class="btn btn-login-submit" id="btn-submit">Login</button>
+    </form>
+
+    <!-- Petunjuk Akun Bawaan -->
+    <p class="default-hint" id="default-account-hint">Default akun: admin / admin</p>
+  </main>
+
+  <script>
+    const SESSION_KEY = 'voltguard_session';
+    const ADMIN_SETTINGS_KEY = 'voltguard_admin_settings';
+    const DASHBOARD_PAGE = 'index.html';
+
+    // Daftar akun & password default untuk Admin dan User
+    const DEFAULT_ACCOUNTS = {
+      admin: {
+        username: 'admin',
+        password: 'admin123',
+        subtitle: 'Login Administrator'
+      },
+      user: {
+        username: 'user',
+        password: 'user123',
+        subtitle: 'Login User Rumah'
+      }
+    };
+
+    let selectedRole = 'admin';
+
+    const roleSubtitle = document.getElementById('role-subtitle');
+    const defaultHint = document.getElementById('default-account-hint');
+    const usernameInput = document.getElementById('username');
+    const passwordInput = document.getElementById('password');
+    const alertBox = document.getElementById('login-alert');
+    const roleButtons = document.querySelectorAll('.role-btn');
+
+    // Ambil username & password terbaru (termasuk jika sudah diubah di setelan.html)
+    function getAccountCredentials(role) {
+      const account = { ...DEFAULT_ACCOUNTS[role] };
+
+      if (role === 'admin') {
+        try {
+          const saved = JSON.parse(localStorage.getItem(ADMIN_SETTINGS_KEY));
+          if (saved) {
+            if (saved.username) account.username = saved.username;
+            if (saved.password) account.password = saved.password;
+          }
+        } catch (e) {
+          // Gunakan kredensial default jika belum ada perubahan tersimpan
+        }
+      }
+
+      return account;
+    }
+
+    // Ubah tampilan & isi form saat tab User atau Admin dipilih
+    function switchRole(role) {
+      selectedRole = role;
+      alertBox.classList.add('d-none');
+
+      roleButtons.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.role === role);
+      });
+
+      const creds = getAccountCredentials(role);
+      roleSubtitle.textContent = creds.subtitle;
+      usernameInput.value = creds.username;
+      passwordInput.value = creds.password;
+      defaultHint.textContent = `Default akun: ${creds.username} / ${creds.password}`;
+    }
+
+    roleButtons.forEach(btn => {
+      btn.addEventListener('click', () => switchRole(btn.dataset.role));
+    });
+
+    // Tombol lihat / sembunyikan password
+    document.getElementById('toggle-password').addEventListener('click', function() {
+      const eyeIcon = document.getElementById('eye-icon');
+      const isHidden = passwordInput.type === 'password';
+      passwordInput.type = isHidden ? 'text' : 'password';
+      eyeIcon.className = isHidden ? 'bi bi-eye-slash' : 'bi bi-eye';
+    });
+
+    // Tampilkan notifikasi status login
+    function showAlert(message, type = 'danger') {
+      alertBox.className = `alert alert-${type} py-2 px-3 small mb-3`;
+      alertBox.textContent = message;
+    }
+
+    // Validasi Proses Login User & Admin
+    document.getElementById('login-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const inputUser = usernameInput.value.trim();
+      const inputPass = passwordInput.value.trim();
+      const validCreds = getAccountCredentials(selectedRole);
+
+      const isAuthenticated = (inputUser === validCreds.username && inputPass === validCreds.password);
+
+      if (!isAuthenticated) {
+        showAlert('Username atau password salah. Periksa kembali peran akun Anda.', 'danger');
+        passwordInput.value = '';
+        passwordInput.focus();
+        return;
+      }
+
+      // Simpan sesi login ke localStorage
+      const sessionData = {
+        username: inputUser,
+        role: selectedRole,
+        loginAt: new Date().toISOString()
+      };
+      localStorage.setItem(SESSION_KEY, JSON.stringify(sessionData));
+
+      showAlert(`Login berhasil sebagai ${selectedRole === 'admin' ? 'Administrator' : 'User'}. Mengalihkan...`, 'success');
+
+      setTimeout(() => {
+  window.location.href = (selectedRole === 'admin') ? 'admin.html' : 'index.html';
+}, 700);
+    });
+
+    // Inisialisasi awal
+    document.addEventListener('DOMContentLoaded', () => {
+      switchRole('admin');
+    });
+  </script>
+</body>
+</html>

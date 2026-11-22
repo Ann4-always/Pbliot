@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Monitoring Listrik Rumah IoT - Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    /* Variabel Warna Utama */
+    :root {
+      --nav-grad-start: #0f172a;  /* Biru Dongker Gelap */
+      --nav-grad-mid: #1e3a8a;    /* Biru Navy */
+      --nav-grad-end: #2563eb;    /* Biru Terang */
+      --nav-accent: #facc15;      /* Kuning Emas */
+      --sidebar-width: 270px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+
+    /* 1. Gradasi & Dimensi Sidebar Kiri */
+    .sidebar-gradient {
+      background: linear-gradient(180deg, var(--nav-grad-start) 0%, var(--nav-grad-mid) 65%, var(--nav-grad-end) 100%);
+      box-shadow: 4px 0 18px rgba(15, 23, 42, 0.2);
+      width: var(--sidebar-width) !important;
+    }
+
+    @media (min-width: 992px) {
+      .sidebar-gradient {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        flex-shrink: 0;
+      }
+    }
+
+    /* Header Khusus Mobile */
+    .mobile-topbar {
+      background: linear-gradient(135deg, var(--nav-grad-start) 0%, var(--nav-grad-mid) 100%);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+    }
+
+    /* Brand / Logo */
+    .sidebar-brand {
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.3px;
+      color: #ffffff;
+      text-decoration: none;
+      transition: transform 0.25s ease, color 0.25s ease;
+    }
+
+    .sidebar-brand:hover {
+      transform: translateX(3px);
+      color: var(--nav-accent);
+    }
+
+    /* 2. Menu Navigasi Vertikal */
+    .sidebar-gradient .nav-link {
+      position: relative;
+      color: rgba(255, 255, 255, 0.85);
+      font-weight: 500;
+      padding: 0.7rem 1rem;
+      margin-bottom: 0.35rem;
+      border-radius: 8px;
+      transition: all 0.25s ease;
+    }
+
+    .sidebar-gradient .nav-link:hover,
+    .sidebar-gradient .nav-link.active {
+      color: #ffffff;
+      background-color: rgba(255, 255, 255, 0.14);
+      transform: translateX(4px);
+    }
+
+    .sidebar-gradient .nav-link::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 20%;
+      width: 4px;
+      height: 0;
+      background-color: var(--nav-accent);
+      border-radius: 0 4px 4px 0;
+      transition: height 0.25s ease;
+    }
+
+    .sidebar-gradient .nav-link:hover::before,
+    .sidebar-gradient .nav-link.active::before {
+      height: 60%;
+    }
+
+    /* 3. Dropdown Profil Admin di Bawah Sidebar */
+    .sidebar-gradient .dropdown-menu {
+      background-color: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+      padding: 0.5rem;
+      width: 100%;
+    }
+
+    .sidebar-gradient .dropdown-item {
+      color: #e2e8f0;
+      border-radius: 6px;
+      padding: 0.5rem 0.85rem;
+      transition: background-color 0.2s ease, color 0.2s ease, padding-left 0.25s ease;
+    }
+
+    .sidebar-gradient .dropdown-item:hover {
+      background-color: rgba(250, 204, 21, 0.15);
+      color: var(--nav-accent);
+      padding-left: 1.15rem;
+    }
+
+    /* 4. Kartu Statistik, Kontrol & Grafik */
+    .chart-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+    }
+
+    .stat-card {
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #ffffff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.08);
+    }
+
+    .stat-card.peak-highlight {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      color: #ffffff;
+      border: none;
+    }
+
+    .control-box {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 0.35rem;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+    }
+
+    .btn-navy-toggle {
+      border-color: #1e3a8a;
+      color: #1e3a8a;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .btn-navy-toggle.active,
+    .btn-navy-toggle:hover {
+      background-color: #1e3a8a;
+      color: #ffffff;
+    }
+
+    .chart-wrapper {
+      position: relative;
+      height: 360px;
+      width: 100%;
+    }
+
+    /* 5. Kartu Tips Hemat Energi */
+    .tip-card {
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #1e3a8a;
+      border-radius: 12px;
+      background: #ffffff;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    }
+
+    .tip-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+      border-left-color: var(--nav-accent);
+    }
+
+    .tip-card.selected {
+      background-color: #fefce8;
+      border-color: #fde047;
+      border-left: 4px solid #eab308;
+    }
+
+    .savings-banner {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      color: #ffffff;
+      border-radius: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topbar Khusus Layar Mobile (< 992px) -->
+  <header class="mobile-topbar navbar navbar-dark d-lg-none px-3 py-2 sticky-top">
+    <a class="sidebar-brand d-flex align-items-center gap-2" href="#grafik-data">
+      <span class="badge bg-warning text-dark">MoLi</span>
+      Monitoring Listrik
+    </a>
+    <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarNav" aria-controls="sidebarNav" aria-label="Buka Menu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  </header>
+
+  <!-- Wrapper Utama: Sidebar di Kiri, Konten di Kanan -->
+  <div class="d-lg-flex min-vh-100">
+
+    <!-- Sidebar Navigasi Kiri -->
+    <aside class="offcanvas-lg offcanvas-start sidebar-gradient text-white" tabindex="-1" id="sidebarNav" aria-labelledby="sidebarNavLabel">
+      <div class="offcanvas-header border-bottom border-white border-opacity-10 d-lg-none">
+        <h5 class="offcanvas-title fw-bold d-flex align-items-center gap-2" id="sidebarNavLabel">
+          <span class="badge bg-warning text-dark">MoLi</span>
+          Monitoring Listrik
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" data-bs-target="#sidebarNav" aria-label="Tutup"></button>
+      </div>
+
+      <div class="offcanvas-body d-flex flex-column h-100 p-3">
+        <!-- Logo Brand (Desktop) -->
+        <a class="sidebar-brand d-none d-lg-flex align-items-center gap-2 mb-3 pb-3 border-bottom border-white border-opacity-10" href="#grafik-data">
+          <span class="badge bg-warning text-dark fs-6">MoLi</span>
+          <span>Monitoring Listrik</span>
+        </a>
+
+        <!-- Daftar Menu Vertikal -->
+        <small class="text-uppercase text-white-50 fw-semibold mb-2 px-2" style="font-size: 0.72rem; letter-spacing: 0.8px;">Menu Utama</small>
+        <ul class="nav flex-column mb-auto" id="sidebarMenu">
+          <li class="nav-item">
+            <a class="nav-link" href="#grafik-data"><i class="bi bi-grid-1x2 me-2"></i>Beranda</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="#grafik-data"><i class="bi bi-bar-chart-line me-2"></i>Grafik Data</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#tips-hemat-energi"><i class="bi bi-lightbulb me-2"></i>Tips Hemat Energi</a>
+          </li>
+          <li class="nav-item" id="menu-pengaturan">
+            <a class="nav-link" href="setelan.html"><i class="bi bi-gear me-2"></i>Pengaturan</a>
+          </li>
+          
+        </ul>
+
+        <!-- Profil Admin di Bagian Bawah Sidebar -->
+        <div class="pt-3 mt-3 border-top border-white border-opacity-10 dropup">
+          <a href="#" class="d-flex align-items-center justify-content-between text-white text-decoration-none dropdown-toggle p-2 rounded-2" style="background: rgba(15, 23, 42, 0.35);" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge rounded-circle bg-warning text-dark fw-bold" id="sidebar-avatar">A</span>
+              <div class="lh-1">
+                <div class="fw-semibold small" id="sidebar-username">Admin</div>
+                <small class="text-white-50" id="sidebar-role" style="font-size: 0.72rem;">Administrator</small>
+              </div>
+            </div>
+          </a>
+          <ul class="dropdown-menu mb-2">
+            <li><a class="dropdown-item" href="index.html">Profil</a></li>
+            <li><hr class="dropdown-divider border-secondary"></li>
+            <li><a class="dropdown-item text-danger" href="login.html" id="btn-logout">Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Konten Utama di Sebelah Kanan -->
+    <main class="flex-grow-1 p-3 p-md-4" style="min-width: 0;">
+      <div class="container-fluid px-0">
+
+        <!-- ========================================================= -->
+        <!-- BAGIAN 1: GRAFIK DATA                                     -->
+        <!-- ========================================================= -->
+        <section id="grafik-data">
+          <div class="d-flex flex-column flex-xl-row justify-content-between align-items-xl-center mb-4 gap-3">
+            <div>
+              <h3 class="fw-bold mb-1">Grafik Data Pemakaian Listrik</h3>
+              <p class="text-muted mb-0">Analisis riwayat konsumsi daya rumah tangga untuk mendeteksi beban puncak.</p>
+            </div>
+
+            <!-- Panel Kontrol Periode & Jenis Grafik -->
+            <div class="control-box d-flex flex-wrap align-items-center gap-2">
+              <div class="btn-group" role="group" aria-label="Filter Periode">
+                <button type="button" class="btn btn-sm btn-navy-toggle active" data-period="harian">Harian</button>
+                <button type="button" class="btn btn-sm btn-navy-toggle" data-period="mingguan">Mingguan</button>
+                <button type="button" class="btn btn-sm btn-navy-toggle" data-period="bulanan">Bulanan</button>
+              </div>
+
+              <div class="vr d-none d-sm-block text-secondary"></div>
+
+              <div class="btn-group" role="group" aria-label="Tipe Grafik">
+                <button type="button" class="btn btn-sm btn-navy-toggle active" data-chart-type="line">Grafik Garis</button>
+                <button type="button" class="btn btn-sm btn-navy-toggle" data-chart-type="bar">Grafik Batang</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ringkasan Statistik & Beban Puncak -->
+          <div class="row g-3 mb-4">
+            <div class="col-12 col-sm-6 col-xl-3">
+              <div class="stat-card peak-highlight p-3 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <small class="text-uppercase fw-semibold" style="color: #facc15;">Pemakaian Tertinggi</small>
+                  <span class="badge bg-warning text-dark">Puncak</span>
+                </div>
+                <h4 class="fw-bold mb-1" id="peak-time">20:00 WIB</h4>
+                <small class="text-light opacity-75" id="peak-value">3.60 kWh</small>
+              </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+              <div class="stat-card p-3 h-100">
+                <small class="text-muted text-uppercase fw-semibold">Total Pemakaian</small>
+                <h4 class="fw-bold mt-1 mb-1 text-primary" id="total-kwh">22.10 kWh</h4>
+                <small class="text-muted" id="period-label">Akumulasi 24 jam</small>
+              </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+              <div class="stat-card p-3 h-100">
+                <small class="text-muted text-uppercase fw-semibold">Rata-Rata Pemakaian</small>
+                <h4 class="fw-bold mt-1 mb-1" id="avg-kwh">1.84 kWh</h4>
+                <small class="text-muted" id="avg-label">Per interval 2 jam</small>
+              </div>
+            </div>
+
+            <div class="col-12 col-sm-6 col-xl-3">
+              <div class="stat-card p-3 h-100">
+                <small class="text-muted text-uppercase fw-semibold">Estimasi Biaya</small>
+                <h4 class="fw-bold mt-1 mb-1 text-success" id="est-cost">Rp 31.928</h4>
+                <small class="text-muted" id="tariff-caption">Tarif dasar Rp 1.444,70/kWh</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card Area Chart -->
+          <div class="card chart-card p-3 p-md-4">
+            <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center mb-3 gap-2">
+              <div>
+                <h5 class="fw-bold mb-0" id="chart-title">Riwayat Pemakaian Listrik Harian (Per 2 Jam)</h5>
+                <small class="text-muted">Titik/batang berwarna kuning emas menandakan waktu pemakaian paling tinggi.</small>
+              </div>
+              <div class="d-flex align-items-center gap-3 small">
+                <span class="d-inline-flex align-items-center gap-1">
+                  <span style="width:12px;height:12px;background:#2563eb;display:inline-block;border-radius:3px;"></span> Normal
+                </span>
+                <span class="d-inline-flex align-items-center gap-1 fw-semibold">
+                  <span style="width:12px;height:12px;background:#facc15;border:1px solid #b45309;display:inline-block;border-radius:3px;"></span> Tertinggi
+                </span>
+              </div>
+            </div>
+
+            <div class="chart-wrapper">
+              <canvas id="electricityChart"></canvas>
+            </div>
+          </div>
+        </section>
+
+        <hr class="my-5 border-secondary-subtle">
+
+        <!-- ========================================================= -->
+        <!-- BAGIAN 2: TIPS HEMAT ENERGI                               -->
+        <!-- ========================================================= -->
+        <section id="tips-hemat-energi" class="pb-4">
+          <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center mb-4 gap-3">
+            <div>
+              <span class="badge bg-warning text-dark mb-2">Rekomendasi Efisiensi</span>
+              <h3 class="fw-bold mb-1">Tips Hemat Energi & Pengeluaran Listrik</h3>
+              <p class="text-muted mb-0">Centang kebiasaan hemat di bawah ini untuk menghitung potensi penghematan tagihan bulanan Anda.</p>
+            </div>
+
+            <!-- Kotak Kalkulator Estimasi Penghematan -->
+            <div class="savings-banner px-4 py-3 text-lg-end">
+              <small class="text-uppercase fw-semibold d-block" style="color: #facc15; font-size: 0.75rem;">Potensi Hemat per Bulan</small>
+              <h4 class="fw-bold mb-0" id="total-savings">Rp 0</h4>
+              <small class="text-white-50" id="selected-tips-count">0 dari 6 tips dipilih</small>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <!-- Tip 1 -->
+            <div class="col-12 col-md-6 col-xl-4">
+              <div class="tip-card p-3 h-100 d-flex flex-column justify-content-between">
+                <div>
+                  <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                    <span class="badge bg-primary-subtle text-primary">Beban Puncak</span>
+                    <span class="badge bg-success-subtle text-success">Hemat ~Rp 45.000/bln</span>
+                  </div>
+                  <h6 class="fw-bold mb-2">Hindari Perangkat Berat di Jam 18:00–22:00</h6>
+                  <p class="text-muted small mb-3">
+                    Berdasarkan grafik harian, beban puncak terjadi pada pukul <strong>20:00 WIB</strong>. Geser jadwal mencuci, menyetrika, atau memompa air ke pagi/siang hari.
+                  </p>
+                </div>
+                <div class="form-check pt-2 border-top">
+                  <input class="form-check-input tip-checkbox" type="checkbox" value="45000" id="tip1">
+                  <label class="form-check-label small fw-semibold" for="tip1">Terapkan tips ini</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tip 2 -->
+            <div class="col-12 col-md-6 col-xl-4">
+              <div class="tip-card p-3 h-100 d-flex flex-column justify-content-between">
+                <div>
+                  <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                    <span class="badge bg-primary-subtle text-primary">Pendingin Ruangan</span>
+                    <span class="badge bg-success-subtle text-success">Hemat ~Rp 75.000/bln</span>
+                  </div>
+                  <h6 class="fw-bold mb-2">Atur Suhu AC Ideal di 24°C – 25°C</h6>
+                  <p class="text-muted small mb-3">
+                    Setiap penurunan 1°C pada AC meningkatkan konsumsi daya hingga 6–10%. Gunakan fitur <em>timer</em> atau <em>eco mode</em> saat tidur malam hari.
+                  </p>
+                </div>
+                <div class="form-check pt-2 border-top">
+                  <input class="form-check-input tip-checkbox" type="checkbox" value="75000" id="tip2">
+                  <label class="form-check-label small fw-semibold" for="tip2">Terapkan tips ini</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tip 3 -->
+            <div class="col-12 col-md-6 col-xl-4">
+              <div class="tip-card p-3 h-100 d-flex flex-column justify-content-between">
+                <div>
+                  <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                    <span class="badge bg-primary-subtle text-primary">Daya Standby</span>
+                    <span class="badge bg-success-subtle text-success">Hemat ~Rp 25.000/bln</span>
+                  </div>
+                  <h6 class="fw-bold mb-2">Cabut Steker Perangkat Tidak Terpakai</h6>
+                  <p class="text-muted small mb-3">
+                    Charger laptop/HP, TV, dan rice cooker dalam mode <em>standby</em> tetap menyedot daya 5–10% dari total tagihan bulanan (<em>phantom load</em>).
+                  </p>
+                </div>
+                <div class="form-check pt-2 border-top">
+                  <input class="form-check-input tip-checkbox" type="checkbox" value="25000" id="tip3">
+                  <label class="form-check-label small fw-semibold" for="tip3">Terapkan tips ini</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tip 4 -->
+            <div class="col-12 col-md-6 col-xl-4">
+              <div class="tip-card p-3 h-100 d-flex flex-column justify-content-between">
+                <div>
+                  <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                    <span class="badge bg-primary-subtle text-primary">Pencahayaan</span>
+                    <span class="badge bg-success-subtle text-success">Hemat ~Rp 30.000/bln</span>
+                  </div>
+                  <h6 class="fw-bold mb-2">Beralih ke Lampu LED & Cahaya Alami</h6>
+                  <p class="text-muted small mb-3">
+                    Lampu LED menghemat hingga 80% energi dibanding lampu pijar konvensional. Matikan lampu teras atau kamar saat pagi hingga sore hari.
+                  </p>
+                </div>
+                <div class="form-check pt-2 border-top">
+                  <input class="form-check-input tip-checkbox" type="checkbox" value="30000" id="tip4">
+                  <label class="form-check-label small fw-semibold" for="tip4">Terapkan tips ini</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tip 5 -->
+            <div class="col-12 col-md-6 col-xl-4">
+              <div class="tip-card p-3 h-100 d-flex flex-column justify-content-between">
+                <div>
+                  <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                    <span class="badge bg-primary-subtle text-primary">Dapur & Kulkas</span>
+                    <span class="badge bg-success-subtle text-success">Hemat ~Rp 35.000/bln</span>
+                  </div>
+                  <h6 class="fw-bold mb-2">Jaga Rapat Pintu & Suhu Kulkas</h6>
+                  <p class="text-muted small mb-3">
+                    Jangan memasukkan makanan panas ke kulkas dan beri jarak 10–15 cm dari dinding agar sirkulasi panas kompresor lancar dan tidak boros daya.
+                  </p>
+                </div>
+                <div class="form-check pt-2 border-top">
+                  <input class="form-check-input tip-checkbox" type="checkbox" value="35000" id="tip5">
+                  <label class="form-check-label small fw-semibold" for="tip5">Terapkan tips ini</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Tip 6 -->
+            <div class="col-12 col-md-6 col-xl-4">
+              <div class="tip-card p-3 h-100 d-flex flex-column justify-content-between">
+                <div>
+                  <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                    <span class="badge bg-primary-subtle text-primary">Evaluasi Rutin</span>
+                    <span class="badge bg-success-subtle text-success">Hemat ~Rp 40.000/bln</span>
+                  </div>
+                  <h6 class="fw-bold mb-2">Pantau Lonjakan Mingguan & Bulanan</h6>
+                  <p class="text-muted small mb-3">
+                    Gunakan filter <strong>Mingguan</strong> pada grafik untuk mengecek kenaikan konsumsi di akhir pekan, lalu batasi penggunaan alat pemanas air/setrika.
+                  </p>
+                </div>
+                <div class="form-check pt-2 border-top">
+                  <input class="form-check-input tip-checkbox" type="checkbox" value="40000" id="tip6">
+                  <label class="form-check-label small fw-semibold" for="tip6">Terapkan tips ini</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Bootstrap & Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script>
+    // =========================================================
+    // 1. DATA PEMAKAIAN LISTRIK (HARIAN, MINGGUAN, BULANAN)
+    // =========================================================
+    const dataPemakaian = {
+      harian: {
+        title: 'Riwayat Pemakaian Listrik Harian (Per 2 Jam)',
+        periodDesc: 'Akumulasi 24 jam terakhir',
+        avgDesc: 'Per interval 2 jam',
+        xAxisLabel: 'Jam',
+        labels: ['00:00', '02:00', '04:00', '06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+        values: [0.8, 0.6, 0.7, 1.5, 1.8, 1.4, 2.1, 1.9, 2.2, 3.1, 3.6, 2.4],
+        suffix: ' WIB'
+      },
+      mingguan: {
+        title: 'Riwayat Pemakaian Listrik Mingguan (7 Hari Terakhir)',
+        periodDesc: 'Akumulasi 7 hari terakhir',
+        avgDesc: 'Rata-rata per hari',
+        xAxisLabel: 'Hari',
+        labels: ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'],
+        values: [18.5, 17.2, 19.0, 18.1, 20.4, 25.8, 24.3],
+        suffix: ''
+      },
+      bulanan: {
+        title: 'Riwayat Pemakaian Listrik Bulanan (30 Hari Terakhir)',
+        periodDesc: 'Akumulasi 1 bulan terakhir',
+        avgDesc: 'Rata-rata per 5 hari',
+        xAxisLabel: 'Periode Tanggal',
+        labels: ['Tgl 1–5', 'Tgl 6–10', 'Tgl 11–15', 'Tgl 16–20', 'Tgl 21–25', 'Tgl 26–30'],
+        values: [92.4, 88.0, 96.5, 108.2, 101.0, 95.8],
+        suffix: ''
+      }
+    };
+
+    let currentPeriod = 'harian';
+    let currentChartType = 'line';
+    let chartInstance = null;
+    let tarifPerKwh = 1444.70;
+
+    // Sinkronisasi tarif & username jika sudah diubah di setelan.html
+    function loadSavedSettings() {
+      try {
+        const saved = JSON.parse(localStorage.getItem('voltguard_admin_settings'));
+        if (!saved) return;
+
+        if (saved.tariff && !isNaN(Number(saved.tariff))) {
+          tarifPerKwh = Number(saved.tariff);
+        }
+        if (saved.username) {
+          document.getElementById('sidebar-username').textContent = saved.username;
+          document.getElementById('sidebar-avatar').textContent = saved.username.charAt(0).toUpperCase();
+        }
+      } catch (error) {
+        console.warn('Menggunakan pengaturan default:', error);
+      }
+    }
+
+    // =========================================================
+    // 2. FUNGSI RENDER GRAFIK GARIS & GRAFIK BATANG
+    // =========================================================
+    function renderChart() {
+      const dataset = dataPemakaian[currentPeriod];
+      const { values, labels } = dataset;
+
+      const maxVal = Math.max(...values);
+      const maxIndex = values.indexOf(maxVal);
+
+      const total = values.reduce((sum, val) => sum + val, 0);
+      const avg = total / values.length;
+      const estCost = total * tarifPerKwh;
+
+      // Perbarui kartu ringkasan
+      document.getElementById('peak-time').textContent = labels[maxIndex] + dataset.suffix;
+      document.getElementById('peak-value').textContent = `${maxVal.toFixed(2)} kWh (Beban Puncak)`;
+      document.getElementById('total-kwh').textContent = `${total.toFixed(2)} kWh`;
+      document.getElementById('period-label').textContent = dataset.periodDesc;
+      document.getElementById('avg-kwh').textContent = `${avg.toFixed(2)} kWh`;
+      document.getElementById('avg-label').textContent = dataset.avgDesc;
+      document.getElementById('est-cost').textContent = 'Rp ' + Math.round(estCost).toLocaleString('id-ID');
+      document.getElementById('tariff-caption').textContent = `Tarif dasar Rp ${tarifPerKwh.toLocaleString('id-ID', { minimumFractionDigits: 2 })}/kWh`;
+      document.getElementById('chart-title').textContent = dataset.title;
+
+      // Sorot titik/batang tertinggi dengan warna kuning emas
+      const pointColors = values.map((_, idx) => (idx === maxIndex ? '#facc15' : '#2563eb'));
+      const borderColors = values.map((_, idx) => (idx === maxIndex ? '#b45309' : '#1e3a8a'));
+      const pointRadii = values.map((_, idx) => (idx === maxIndex ? 8 : 5));
+
+      const ctx = document.getElementById('electricityChart').getContext('2d');
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
+
+      chartInstance = new Chart(ctx, {
+        type: currentChartType,
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Pemakaian Listrik (kWh)',
+            data: values,
+            borderColor: currentChartType === 'line' ? '#1e3a8a' : borderColors,
+            backgroundColor: currentChartType === 'line'
+              ? 'rgba(37, 99, 235, 0.14)'
+              : pointColors,
+            borderWidth: 2.5,
+            borderRadius: currentChartType === 'bar' ? 6 : 0,
+            fill: currentChartType === 'line',
+            tension: 0.35,
+            pointBackgroundColor: pointColors,
+            pointBorderColor: borderColors,
+            pointBorderWidth: 2,
+            pointRadius: pointRadii,
+            pointHoverRadius: 9
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              titleColor: '#facc15',
+              bodyColor: '#ffffff',
+              padding: 12,
+              cornerRadius: 8,
+              callbacks: {
+                label: function(context) {
+                  const val = context.parsed.y.toFixed(2);
+                  const isPeak = context.dataIndex === maxIndex ? ' ★ (Tertinggi)' : '';
+                  return ` Pemakaian: ${val} kWh${isPeak}`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: { display: true, text: 'Daya (kWh)', font: { weight: 'bold' } },
+              grid: { color: 'rgba(15, 23, 42, 0.06)' }
+            },
+            x: {
+              title: { display: true, text: dataset.xAxisLabel, font: { weight: 'bold' } },
+              grid: { display: false }
+            }
+          }
+        }
+      });
+    }
+
+    // =========================================================
+    // 3. KONTROL FILTER PERIODE & TIPE GRAFIK
+    // =========================================================
+    const periodButtons = document.querySelectorAll('[data-period]');
+    periodButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        periodButtons.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentPeriod = this.dataset.period;
+        renderChart();
+      });
+    });
+
+    const chartTypeButtons = document.querySelectorAll('[data-chart-type]');
+    chartTypeButtons.forEach(btn => {
+      btn.addEventListener('click', function() {
+        chartTypeButtons.forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        currentChartType = this.dataset.chartType;
+        renderChart();
+      });
+    });
+
+    // =========================================================
+    // 4. NAVIGASI SIDEBAR & PENUTUP OTOMATIS MOBILE
+    // =========================================================
+    const sidebarLinks = document.querySelectorAll('#sidebarMenu .nav-link');
+    const sidebarOffcanvasEl = document.getElementById('sidebarNav');
+
+    sidebarLinks.forEach(link => {
+      link.addEventListener('click', function() {
+        const targetHref = this.getAttribute('href');
+        if (targetHref.startsWith('#')) {
+          sidebarLinks.forEach(l => l.classList.remove('active'));
+          this.classList.add('active');
+
+          const offcanvasInstance = bootstrap.Offcanvas.getInstance(sidebarOffcanvasEl);
+          if (offcanvasInstance) {
+            offcanvasInstance.hide();
+          }
+        }
+      });
+    });
+
+    // =========================================================
+    // 5. KALKULATOR INTERAKTIF TIPS HEMAT ENERGI
+    // =========================================================
+    const tipCheckboxes = document.querySelectorAll('.tip-checkbox');
+
+    function updateSavingsEstimate() {
+      let totalSavings = 0;
+      let checkedCount = 0;
+
+      tipCheckboxes.forEach(checkbox => {
+        const card = checkbox.closest('.tip-card');
+        if (checkbox.checked) {
+          totalSavings += Number(checkbox.value);
+          checkedCount++;
+          card.classList.add('selected');
+        } else {
+          card.classList.remove('selected');
+        }
+      });
+
+      document.getElementById('total-savings').textContent = 'Rp ' + totalSavings.toLocaleString('id-ID');
+      document.getElementById('selected-tips-count').textContent = `${checkedCount} dari ${tipCheckboxes.length} tips dipilih`;
+    }
+
+    tipCheckboxes.forEach(cb => cb.addEventListener('change', updateSavingsEstimate));
+
+    // =========================================================
+    // 6. INISIALISASI HALAMAN
+    // =========================================================
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSavedSettings();
+      renderChart();
+    });
+    
+    // Cek sesi login & atur hak akses User vs Admin
+function checkAuthSession() {
+  const rawSession = localStorage.getItem('voltguard_session');
+
+  // Jika belum login, arahkan paksa ke login.html
+  if (!rawSession) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  const session = JSON.parse(rawSession);
+  const isAdmin = session.role === 'admin';
+
+  // Tampilkan username & peran di sidebar
+  document.getElementById('sidebar-username').textContent = session.username;
+  document.getElementById('sidebar-avatar').textContent = session.username.charAt(0).toUpperCase();
+  document.getElementById('sidebar-role').textContent = isAdmin ? 'Administrator' : 'User Rumah';
+
+  // Sembunyikan menu Pengaturan jika yang login adalah User biasa
+  if (!isAdmin) {
+    const menuPengaturan = document.getElementById('menu-pengaturan');
+    const dropProfil = document.getElementById('dropdown-profil');
+    const dropPengaturan = document.getElementById('dropdown-pengaturan');
+
+    if (menuPengaturan) menuPengaturan.style.display = 'none';
+    if (dropProfil) dropProfil.style.display = 'none';
+    if (dropPengaturan) dropPengaturan.style.display = 'none';
+  }
+}
+
+// Hapus sesi saat tombol Logout diklik
+document.getElementById('btn-logout').addEventListener('click', function(e) {
+  e.preventDefault();
+  localStorage.removeItem('voltguard_session');
+  window.location.href = 'login.html';
+});
+
+// Panggil checkAuthSession() saat halaman dimuat
+document.addEventListener('DOMContentLoaded', () => {
+  checkAuthSession();
+  loadSavedSettings();
+  renderChart();
+});
+  </script>
+</body>
+</html>

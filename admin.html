@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Administrator - Monitoring Listrik IoT</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --nav-grad-start: #0f172a;  /* Biru Dongker Gelap */
+      --nav-grad-mid: #1e3a8a;    /* Biru Navy */
+      --nav-grad-end: #2563eb;    /* Biru Terang */
+      --nav-accent: #facc15;      /* Kuning Emas */
+      --sidebar-width: 270px;
+    }
+
+    body {
+      background-color: #eef2f6;
+      color: #0f172a;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* Sidebar Kiri */
+    .sidebar-gradient {
+      background: linear-gradient(180deg, var(--nav-grad-start) 0%, var(--nav-grad-mid) 65%, var(--nav-grad-end) 100%);
+      box-shadow: 4px 0 18px rgba(15, 23, 42, 0.2);
+      width: var(--sidebar-width) !important;
+    }
+
+    @media (min-width: 992px) {
+      .sidebar-gradient {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        flex-shrink: 0;
+      }
+    }
+
+    .mobile-topbar {
+      background: linear-gradient(135deg, var(--nav-grad-start) 0%, var(--nav-grad-mid) 100%);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.2);
+    }
+
+    .sidebar-brand {
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.3px;
+      color: #ffffff;
+      text-decoration: none;
+      transition: transform 0.25s ease, color 0.25s ease;
+    }
+
+    .sidebar-brand:hover {
+      transform: translateX(3px);
+      color: var(--nav-accent);
+    }
+
+    .sidebar-gradient .nav-link {
+      position: relative;
+      color: rgba(255, 255, 255, 0.85);
+      font-weight: 500;
+      padding: 0.7rem 1rem;
+      margin-bottom: 0.35rem;
+      border-radius: 8px;
+      transition: all 0.25s ease;
+    }
+
+    .sidebar-gradient .nav-link:hover,
+    .sidebar-gradient .nav-link.active {
+      color: #ffffff;
+      background-color: rgba(255, 255, 255, 0.14);
+      transform: translateX(4px);
+    }
+
+    .sidebar-gradient .nav-link::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 20%;
+      width: 4px;
+      height: 0;
+      background-color: var(--nav-accent);
+      border-radius: 0 4px 4px 0;
+      transition: height 0.25s ease;
+    }
+
+    .sidebar-gradient .nav-link:hover::before,
+    .sidebar-gradient .nav-link.active::before {
+      height: 60%;
+    }
+
+    .sidebar-gradient .dropdown-menu {
+      background-color: #0f172a;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 10px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+      padding: 0.5rem;
+      width: 100%;
+    }
+
+    .sidebar-gradient .dropdown-item {
+      color: #e2e8f0;
+      border-radius: 6px;
+      padding: 0.5rem 0.85rem;
+      transition: background-color 0.2s ease, color 0.2s ease, padding-left 0.25s ease;
+    }
+
+    .sidebar-gradient .dropdown-item:hover {
+      background-color: rgba(250, 204, 21, 0.15);
+      color: var(--nav-accent);
+      padding-left: 1.15rem;
+    }
+
+    /* Kartu Statistik & Kontainer CMS */
+    .admin-stat-card {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      padding: 1.15rem;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.05);
+      height: 100%;
+    }
+
+    .admin-stat-card.highlight-navy {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      color: #ffffff;
+      border: none;
+    }
+
+    .cms-panel {
+      background: #ffffff;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.06);
+    }
+
+    /* Tombol Aksi Utama */
+    .btn-navy-solid {
+      background-color: #1e3a8a;
+      border: 1px solid #1e3a8a;
+      color: #ffffff;
+      font-weight: 600;
+      border-radius: 8px;
+      padding: 0.55rem 1.15rem;
+      box-shadow: 0 2px 6px rgba(30, 58, 138, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .btn-navy-solid:hover,
+    .btn-navy-solid:active {
+      background-color: #0f172a;
+      border-color: #0f172a;
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    /* Tabel & Daftar Artikel CMS */
+    .cms-table thead th {
+      background-color: #f8fafc;
+      color: #475569;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #e2e8f0;
+      padding: 0.85rem 1rem;
+      white-space: nowrap;
+    }
+
+    .cms-table tbody td {
+      padding: 0.95rem 1rem;
+      vertical-align: middle;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    .tip-desc-preview {
+      max-width: 380px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .form-control-clean,
+    .form-select-clean {
+      background-color: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 0.58rem 0.85rem;
+    }
+
+    .form-control-clean:focus,
+    .form-select-clean:focus {
+      background-color: #ffffff;
+      border-color: #1e3a8a;
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Topbar Mobile (< 992px) -->
+  <header class="mobile-topbar navbar navbar-dark d-lg-none px-3 py-2 sticky-top">
+    <a class="sidebar-brand d-flex align-items-center gap-2" href="admin.html">
+      <span class="badge bg-warning text-dark">MoLi</span>
+      <span>Admin Panel</span>
+    </a>
+    <button class="btn btn-outline-light btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#adminSidebar" aria-controls="adminSidebar" aria-label="Buka Menu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+  </header>
+
+  <!-- Wrapper Layout -->
+  <div class="d-lg-flex min-vh-100">
+
+    <!-- Sidebar Navigasi Admin -->
+    <aside class="offcanvas-lg offcanvas-start sidebar-gradient text-white" tabindex="-1" id="adminSidebar" aria-labelledby="adminSidebarLabel">
+      <div class="offcanvas-header border-bottom border-white border-opacity-10 d-lg-none">
+        <h5 class="offcanvas-title fw-bold d-flex align-items-center gap-2" id="adminSidebarLabel">
+          <span class="badge bg-warning text-dark">MoLi</span>
+          <span>Admin Panel</span>
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" data-bs-target="#adminSidebar" aria-label="Tutup"></button>
+      </div>
+
+      <div class="offcanvas-body d-flex flex-column h-100 p-3">
+        <!-- Brand Desktop -->
+        <a class="sidebar-brand d-none d-lg-flex align-items-center gap-2 mb-3 pb-3 border-bottom border-white border-opacity-10" href="admin.html">
+          <span class="badge bg-warning text-dark fs-6">MoLi</span>
+          <span>Admin Panel IoT</span>
+        </a>
+
+        <!-- Menu Navigasi Admin -->
+        <small class="text-uppercase text-white-50 fw-semibold mb-2 px-2" style="font-size: 0.72rem; letter-spacing: 0.8px;">Menu Administrator</small>
+        <ul class="nav flex-column mb-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="admin.html">
+              <i class="bi bi-journal-richtext me-2"></i>Manajemen Tips (CMS)
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">
+              <i class="bi bi-bar-chart-line me-2"></i>Pratinjau Dashboard User
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="setelan.html">
+              <i class="bi bi-gear me-2"></i>Pengaturan Sistem IoT
+            </a>
+          </li>
+        </ul>
+
+        <!-- Akun Admin di Bawah Sidebar -->
+        <div class="pt-3 mt-3 border-top border-white border-opacity-10 dropup">
+          <a href="#" class="d-flex align-items-center justify-content-between text-white text-decoration-none dropdown-toggle p-2 rounded-2" style="background: rgba(15, 23, 42, 0.35);" data-bs-toggle="dropdown" aria-expanded="false">
+            <div class="d-flex align-items-center gap-2">
+              <span class="badge rounded-circle bg-warning text-dark fw-bold" id="admin-avatar">A</span>
+              <div class="lh-1">
+                <div class="fw-semibold small" id="admin-name-label">admin</div>
+                <small class="text-white-50" style="font-size: 0.72rem;">Administrator</small>
+              </div>
+            </div>
+          </a>
+          <ul class="dropdown-menu mb-2">
+            <li><a class="dropdown-item" href="setelan.html"><i class="bi bi-person-gear me-2"></i>Profil & Pengaturan</a></li>
+            <li><a class="dropdown-item" href="index.html"><i class="bi bi-eye me-2"></i>Lihat Halaman User</a></li>
+            <li><hr class="dropdown-divider border-secondary"></li>
+            <li><a class="dropdown-item text-danger" href="login.html" id="btn-logout"><i class="bi bi-box-arrow-right me-2"></i>Logout</a></li>
+          </ul>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Konten Utama Dashboard Admin -->
+    <main class="flex-grow-1 p-3 p-md-4" style="min-width: 0;">
+      <div class="container-fluid px-0">
+
+        <!-- Header Dashboard Admin -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+          <div>
+            <span class="badge bg-warning text-dark fw-semibold mb-1">Tampilan Administrator</span>
+            <h3 class="fw-bold mb-1">Dashboard Admin & Manajemen Tips</h3>
+            <p class="text-muted mb-0">Kelola artikel edukasi “Tips Hemat Energi” agar informasi bagi pengguna selalu baru dan relevan.</p>
+          </div>
+
+          <div class="d-flex flex-wrap gap-2">
+            <button type="button" class="btn btn-outline-secondary btn-sm fw-medium" id="btn-reset-tips">
+              <i class="bi bi-arrow-counterclockwise me-1"></i>Reset Artikel Awal
+            </button>
+            <button type="button" class="btn btn-navy-solid" id="btn-open-create">
+              <i class="bi bi-plus-lg me-1"></i>Tambah Tips Baru
+            </button>
+          </div>
+        </div>
+
+        <!-- Ringkasan Statistik Admin -->
+        <div class="row g-3 mb-4">
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="admin-stat-card highlight-navy">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <small class="text-uppercase fw-semibold" style="color: #facc15;">Artikel Tips Aktif</small>
+                <i class="bi bi-lightbulb-fill text-warning"></i>
+              </div>
+              <h3 class="fw-bold mb-1" id="stat-active-tips">6 Artikel</h3>
+              <small class="text-white-50" id="stat-total-tips">Total 6 artikel tersimpan</small>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="admin-stat-card">
+              <small class="text-muted text-uppercase fw-semibold">Total Potensi Hemat</small>
+              <h3 class="fw-bold mt-1 mb-1 text-success" id="stat-total-savings">Rp 250.000</h3>
+              <small class="text-muted">Akumulasi estimasi per bulan</small>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="admin-stat-card">
+              <small class="text-muted text-uppercase fw-semibold">Status Perangkat IoT</small>
+              <h5 class="fw-bold mt-2 mb-1 text-primary"><i class="bi bi-check-circle-fill text-success me-1"></i>Online (MQTT)</h5>
+              <small class="text-muted">ESP32 & Sensor PZEM-004T</small>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-xl-3">
+            <div class="admin-stat-card">
+              <small class="text-muted text-uppercase fw-semibold">Tarif Listrik Aktif</small>
+              <h4 class="fw-bold mt-1 mb-1" id="stat-active-tariff">Rp 1.444,70</h4>
+              <small class="text-muted">Per kWh (<a href="setelan.html" class="text-decoration-none">Ubah di Setelan</a>)</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notifikasi Feedback CRUD -->
+        <div id="cms-alert" class="alert alert-success d-none align-items-center justify-content-between shadow-sm mb-4" role="alert">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-check-circle-fill"></i>
+            <span id="cms-alert-text">Perubahan artikel berhasil disimpan.</span>
+          </div>
+          <button type="button" class="btn-close btn-sm" aria-label="Tutup" onclick="this.parentElement.classList.add('d-none')"></button>
+        </div>
+
+        <!-- Panel CMS Manajemen Tips Hemat Energi -->
+        <section class="cms-panel p-3 p-md-4">
+          <!-- Baris Pencarian & Filter Kategori -->
+          <div class="row g-2 align-items-center justify-content-between mb-3">
+            <div class="col-12 col-md-5">
+              <div class="input-group">
+                <span class="input-group-text bg-light border-end-0"><i class="bi bi-search text-muted"></i></span>
+                <input type="text" class="form-control form-control-clean border-start-0" id="search-tips" placeholder="Cari judul atau isi tips hemat energi...">
+              </div>
+            </div>
+
+            <div class="col-12 col-md-4 col-lg-3">
+              <select class="form-select form-select-clean" id="filter-category" aria-label="Filter Kategori">
+                <option value="ALL" selected>Semua Kategori</option>
+                <option value="Beban Puncak">Beban Puncak</option>
+                <option value="Pendingin Ruangan">Pendingin Ruangan</option>
+                <option value="Daya Standby">Daya Standby</option>
+                <option value="Pencahayaan">Pencahayaan</option>
+                <option value="Dapur & Kulkas">Dapur & Kulkas</option>
+                <option value="Evaluasi Rutin">Evaluasi Rutin</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Tabel Daftar Artikel Tips -->
+          <div class="table-responsive">
+            <table class="table cms-table mb-0">
+              <thead>
+                <tr>
+                  <th style="width: 50px;">No</th>
+                  <th>Judul & Ringkasan Artikel</th>
+                  <th>Kategori</th>
+                  <th>Estimasi Hemat</th>
+                  <th>Status</th>
+                  <th class="text-end">Aksi</th>
+                </tr>
+              </thead>
+              <tbody id="tips-table-body">
+                <!-- Baris diisi otomatis oleh JavaScript -->
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Tampilan Jika Data Kosong -->
+          <div id="empty-state" class="text-center py-5 d-none">
+            <i class="bi bi-journal-x fs-1 text-muted"></i>
+            <h6 class="fw-bold mt-2 mb-1">Artikel Tips Tidak Ditemukan</h6>
+            <p class="text-muted small mb-3">Coba ubah kata kunci pencarian atau tambahkan artikel tips hemat energi baru.</p>
+            <button type="button" class="btn btn-sm btn-navy-solid" id="btn-empty-create">
+              <i class="bi bi-plus-lg me-1"></i>Tambah Tips Sekarang
+            </button>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODAL FORM CREATE & UPDATE TIPS HEMAT ENERGI              -->
+  <!-- ========================================================= -->
+  <div class="modal fade" id="tipFormModal" tabindex="-1" aria-labelledby="tipFormModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <form class="modal-content border-0 shadow" id="tip-form">
+        <div class="modal-header text-white" style="background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);">
+          <h5 class="modal-title fw-bold" id="tipFormModalLabel">
+            <i class="bi bi-pencil-square text-warning me-2"></i>Tambah Tips Hemat Energi
+          </h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+
+        <div class="modal-body p-4">
+          <input type="hidden" id="tip-id">
+
+          <div class="mb-3">
+            <label for="tip-title" class="form-label fw-semibold small">Judul Tips Hemat Energi <span class="text-danger">*</span></label>
+            <input type="text" class="form-control form-control-clean" id="tip-title" placeholder="Contoh: Atur Suhu AC Ideal di 24°C – 25°C" required>
+          </div>
+
+          <div class="row g-3 mb-3">
+            <div class="col-12 col-md-4">
+              <label for="tip-category" class="form-label fw-semibold small">Kategori <span class="text-danger">*</span></label>
+              <select class="form-select form-select-clean" id="tip-category" required>
+                <option value="Beban Puncak">Beban Puncak</option>
+                <option value="Pendingin Ruangan">Pendingin Ruangan</option>
+                <option value="Daya Standby">Daya Standby</option>
+                <option value="Pencahayaan">Pencahayaan</option>
+                <option value="Dapur & Kulkas">Dapur & Kulkas</option>
+                <option value="Evaluasi Rutin">Evaluasi Rutin</option>
+              </select>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <label for="tip-savings" class="form-label fw-semibold small">Estimasi Hemat / Bulan (Rp) <span class="text-danger">*</span></label>
+              <input type="number" min="1000" step="1000" class="form-control form-control-clean" id="tip-savings" placeholder="45000" required>
+            </div>
+
+            <div class="col-12 col-md-4">
+              <label for="tip-status" class="form-label fw-semibold small">Status Publikasi</label>
+              <select class="form-select form-select-clean" id="tip-status">
+                <option value="active" selected>Aktif (Tampil ke User)</option>
+                <option value="draft">Draft (Disembunyikan)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="mb-2">
+            <label for="tip-content" class="form-label fw-semibold small">Isi Artikel / Penjelasan Edukasi <span class="text-danger">*</span></label>
+            <textarea class="form-control form-control-clean" id="tip-content" rows="4" placeholder="Tuliskan langkah praktis agar penghuni rumah dapat menghemat konsumsi listrik..." required></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer bg-light">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Batal</button>
+          <button type="submit" class="btn btn-navy-solid" id="btn-save-tip">
+            <i class="bi bi-check2-circle me-1"></i>Simpan Artikel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ========================================================= -->
+  <!-- MODAL KONFIRMASI DELETE ARTIKEL                           -->
+  <!-- ========================================================= -->
+  <div class="modal fade" id="deleteTipModal" tabindex="-1" aria-labelledby="deleteTipModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-danger text-white">
+          <h6 class="modal-title fw-bold" id="deleteTipModalLabel">
+            <i class="bi bi-trash3-fill me-2"></i>Hapus Artikel Tips
+          </h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-1">Apakah Anda yakin ingin menghapus artikel berikut?</p>
+          <p class="fw-bold text-dark mb-2" id="delete-tip-title">Judul Artikel</p>
+          <small class="text-muted">Artikel yang dihapus tidak akan muncul lagi pada halaman edukasi User.</small>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Batal</button>
+          <button type="button" class="btn btn-danger fw-semibold" id="btn-confirm-delete">Ya, Hapus</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const SESSION_KEY = 'voltguard_session';
+    const TIPS_STORAGE_KEY = 'voltguard_tips_cms';
+    const SETTINGS_STORAGE_KEY = 'voltguard_admin_settings';
+
+    // Data awal 6 artikel Tips Hemat Energi
+    const defaultTipsData = [
+      {
+        id: 'tip-1',
+        title: 'Hindari Perangkat Berat di Jam 18:00–22:00',
+        category: 'Beban Puncak',
+        savings: 45000,
+        status: 'active',
+        content: 'Berdasarkan grafik harian, beban puncak terjadi pada pukul 20:00 WIB. Geser jadwal mencuci, menyetrika, atau memompa air ke pagi/siang hari.',
+        updatedAt: '22 Nov 2026'
+      },
+      {
+        id: 'tip-2',
+        title: 'Atur Suhu AC Ideal di 24°C – 25°C',
+        category: 'Pendingin Ruangan',
+        savings: 75000,
+        status: 'active',
+        content: 'Setiap penurunan 1°C pada AC meningkatkan konsumsi daya hingga 6–10%. Gunakan fitur timer atau eco mode saat tidur malam hari.',
+        updatedAt: '22 Nov 2026'
+      },
+      {
+        id: 'tip-3',
+        title: 'Cabut Steker Perangkat Tidak Terpakai',
+        category: 'Daya Standby',
+        savings: 25000,
+        status: 'active',
+        content: 'Charger laptop/HP, TV, dan rice cooker dalam mode standby tetap menyedot daya 5–10% dari total tagihan bulanan (phantom load).',
+        updatedAt: '22 Nov 2026'
+      },
+      {
+        id: 'tip-4',
+        title: 'Beralih ke Lampu LED & Cahaya Alami',
+        category: 'Pencahayaan',
+        savings: 30000,
+        status: 'active',
+        content: 'Lampu LED menghemat hingga 80% energi dibanding lampu pijar konvensional. Matikan lampu teras atau kamar saat pagi hingga sore hari.',
+        updatedAt: '22 Nov 2026'
+      },
+      {
+        id: 'tip-5',
+        title: 'Jaga Rapat Pintu & Suhu Kulkas',
+        category: 'Dapur & Kulkas',
+        savings: 35000,
+        status: 'active',
+        content: 'Jangan memasukkan makanan panas ke kulkas dan beri jarak 10–15 cm dari dinding agar sirkulasi panas kompresor lancar dan tidak boros daya.',
+        updatedAt: '22 Nov 2026'
+      },
+      {
+        id: 'tip-6',
+        title: 'Pantau Lonjakan Mingguan & Bulanan',
+        category: 'Evaluasi Rutin',
+        savings: 40000,
+        status: 'active',
+        content: 'Gunakan filter Mingguan pada grafik untuk mengecek kenaikan konsumsi di akhir pekan, lalu batasi penggunaan alat pemanas air/setrika.',
+        updatedAt: '22 Nov 2026'
+      }
+    ];
+
+    let tipsList = [];
+    let pendingDeleteId = null;
+
+    const tipFormModalEl = document.getElementById('tipFormModal');
+    const tipFormModal = new bootstrap.Modal(tipFormModalEl);
+    const deleteTipModalEl = document.getElementById('deleteTipModal');
+    const deleteTipModal = new bootstrap.Modal(deleteTipModalEl);
+
+    // 1. Proteksi Halaman Khusus Admin
+    function verifyAdminSession() {
+      const rawSession = localStorage.getItem(SESSION_KEY);
+      if (rawSession) {
+        try {
+          const session = JSON.parse(rawSession);
+          if (session.role !== 'admin') {
+            window.location.href = 'index.html';
+            return;
+          }
+          document.getElementById('admin-name-label').textContent = session.username || 'admin';
+          document.getElementById('admin-avatar').textContent = (session.username || 'A').charAt(0).toUpperCase();
+        } catch (e) {
+          // Abaikan jika format sesi tidak valid
+        }
+      }
+
+      // Sinkronkan tarif aktif dari setelan.html jika ada
+      try {
+        const savedSettings = JSON.parse(localStorage.getItem(SETTINGS_STORAGE_KEY));
+        if (savedSettings && savedSettings.tariff) {
+          document.getElementById('stat-active-tariff').textContent =
+            'Rp ' + Number(savedSettings.tariff).toLocaleString('id-ID', { minimumFractionDigits: 2 });
+        }
+      } catch (e) {
+        // Gunakan tarif bawaan
+      }
+    }
+
+    // 2. Escape HTML agar aman dari karakter khusus
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // 3. Load & Save Data CMS ke localStorage
+    function loadTipsFromStorage() {
+      try {
+        const stored = localStorage.getItem(TIPS_STORAGE_KEY);
+        if (stored) {
+          tipsList = JSON.parse(stored);
+        } else {
+          tipsList = [...defaultTipsData];
+          saveTipsToStorage();
+        }
+      } catch (e) {
+        tipsList = [...defaultTipsData];
+      }
+    }
+
+    function saveTipsToStorage() {
+      localStorage.setItem(TIPS_STORAGE_KEY, JSON.stringify(tipsList));
+    }
+
+    function showCmsAlert(message, type = 'success') {
+      const alertBox = document.getElementById('cms-alert');
+      const alertText = document.getElementById('cms-alert-text');
+      alertBox.className = `alert alert-${type} d-flex align-items-center justify-content-between shadow-sm mb-4`;
+      alertText.textContent = message;
+    }
+
+    // 4. Update Kartu Statistik Ringkasan
+    function updateSummaryStats() {
+      const activeTips = tipsList.filter(item => item.status === 'active');
+      const totalSavings = activeTips.reduce((sum, item) => sum + Number(item.savings || 0), 0);
+
+      document.getElementById('stat-active-tips').textContent = `${activeTips.length} Artikel`;
+      document.getElementById('stat-total-tips').textContent = `Total ${tipsList.length} artikel tersimpan`;
+      document.getElementById('stat-total-savings').textContent = 'Rp ' + totalSavings.toLocaleString('id-ID');
+    }
+
+    // 5. Render Tabel CMS (READ)
+    function renderTipsTable() {
+      const keyword = document.getElementById('search-tips').value.trim().toLowerCase();
+      const selectedCat = document.getElementById('filter-category').value;
+
+      const filtered = tipsList.filter(item => {
+        const matchKeyword =
+          item.title.toLowerCase().includes(keyword) ||
+          item.content.toLowerCase().includes(keyword);
+        const matchCategory = selectedCat === 'ALL' || item.category === selectedCat;
+        return matchKeyword && matchCategory;
+      });
+
+      const tbody = document.getElementById('tips-table-body');
+      const emptyState = document.getElementById('empty-state');
+      tbody.innerHTML = '';
+
+      if (filtered.length === 0) {
+        emptyState.classList.remove('d-none');
+      } else {
+        emptyState.classList.add('d-none');
+        filtered.forEach((tip, index) => {
+          const isPublished = tip.status === 'active';
+          const statusBadge = isPublished
+            ? '<span class="badge bg-success-subtle text-success">Aktif</span>'
+            : '<span class="badge bg-secondary-subtle text-secondary">Draft</span>';
+
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td class="fw-semibold text-muted">${index + 1}</td>
+            <td>
+              <div class="fw-bold text-dark mb-1">${escapeHtml(tip.title)}</div>
+              <div class="text-muted small tip-desc-preview">${escapeHtml(tip.content)}</div>
+              <small class="text-muted d-block mt-1" style="font-size: 0.72rem;">Diperbarui: ${escapeHtml(tip.updatedAt || '-')}</small>
+            </td>
+            <td><span class="badge bg-primary-subtle text-primary">${escapeHtml(tip.category)}</span></td>
+            <td class="fw-semibold text-success text-nowrap">Rp ${Number(tip.savings).toLocaleString('id-ID')}/bln</td>
+            <td>${statusBadge}</td>
+            <td class="text-end text-nowrap">
+              <button type="button" class="btn btn-sm btn-outline-primary me-1 btn-edit-tip" data-id="${tip.id}" title="Edit Artikel">
+                <i class="bi bi-pencil-square"></i> Edit
+              </button>
+              <button type="button" class="btn btn-sm btn-outline-danger btn-delete-tip" data-id="${tip.id}" title="Hapus Artikel">
+                <i class="bi bi-trash3"></i> Hapus
+              </button>
+            </td>
+          `;
+          tbody.appendChild(row);
+        });
+      }
+
+      updateSummaryStats();
+    }
+
+    // 6. Buka Modal Tambah Artikel (CREATE)
+    function openCreateModal() {
+      document.getElementById('tip-form').reset();
+      document.getElementById('tip-id').value = '';
+      document.getElementById('tip-status').value = 'active';
+      document.getElementById('tipFormModalLabel').innerHTML =
+        '<i class="bi bi-plus-circle text-warning me-2"></i>Tambah Tips Hemat Energi';
+      tipFormModal.show();
+    }
+
+    document.getElementById('btn-open-create').addEventListener('click', openCreateModal);
+    document.getElementById('btn-empty-create').addEventListener('click', openCreateModal);
+
+    // 7. Buka Modal Edit Artikel (UPDATE)
+    function openEditModal(id) {
+      const target = tipsList.find(item => item.id === id);
+      if (!target) return;
+
+      document.getElementById('tip-id').value = target.id;
+      document.getElementById('tip-title').value = target.title;
+      document.getElementById('tip-category').value = target.category;
+      document.getElementById('tip-savings').value = target.savings;
+      document.getElementById('tip-status').value = target.status;
+      document.getElementById('tip-content').value = target.content;
+
+      document.getElementById('tipFormModalLabel').innerHTML =
+        '<i class="bi bi-pencil-square text-warning me-2"></i>Edit Artikel Tips Hemat Energi';
+      tipFormModal.show();
+    }
+
+    // 8. Simpan Hasil Create / Update
+    document.getElementById('tip-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const existingId = document.getElementById('tip-id').value;
+      const title = document.getElementById('tip-title').value.trim();
+      const category = document.getElementById('tip-category').value;
+      const savings = Number(document.getElementById('tip-savings').value) || 0;
+      const status = document.getElementById('tip-status').value;
+      const content = document.getElementById('tip-content').value.trim();
+
+      if (!title || !content) return;
+
+      const todayLabel = new Date().toLocaleDateString('id-ID', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+
+      if (existingId) {
+        // Mode Update
+        const index = tipsList.findIndex(item => item.id === existingId);
+        if (index !== -1) {
+          tipsList[index] = {
+            ...tipsList[index],
+            title,
+            category,
+            savings,
+            status,
+            content,
+            updatedAt: todayLabel
+          };
+          showCmsAlert(`Artikel "${title}" berhasil diperbarui.`);
+        }
+      } else {
+        // Mode Create
+        const newArticle = {
+          id: 'tip-' + Date.now(),
+          title,
+          category,
+          savings,
+          status,
+          content,
+          updatedAt: todayLabel
+        };
+        tipsList.unshift(newArticle);
+        showCmsAlert(`Artikel baru "${title}" berhasil ditambahkan.`);
+      }
+
+      saveTipsToStorage();
+      renderTipsTable();
+      tipFormModal.hide();
+    });
+
+    // 9. Delegasi Klik Tombol Edit & Hapus di Tabel
+    document.getElementById('tips-table-body').addEventListener('click', function(e) {
+      const editBtn = e.target.closest('.btn-edit-tip');
+      if (editBtn) {
+        openEditModal(editBtn.dataset.id);
+        return;
+      }
+
+      const deleteBtn = e.target.closest('.btn-delete-tip');
+      if (deleteBtn) {
+        const target = tipsList.find(item => item.id === deleteBtn.dataset.id);
+        if (!target) return;
+
+        pendingDeleteId = target.id;
+        document.getElementById('delete-tip-title').textContent = `"${target.title}"`;
+        deleteTipModal.show();
+      }
+    });
+
+    // 10. Eksekusi Hapus Artikel (DELETE)
+    document.getElementById('btn-confirm-delete').addEventListener('click', function() {
+      if (!pendingDeleteId) return;
+
+      const deletedItem = tipsList.find(item => item.id === pendingDeleteId);
+      tipsList = tipsList.filter(item => item.id !== pendingDeleteId);
+      pendingDeleteId = null;
+
+      saveTipsToStorage();
+      renderTipsTable();
+      deleteTipModal.hide();
+
+      if (deletedItem) {
+        showCmsAlert(`Artikel "${deletedItem.title}" telah dihapus.`, 'warning');
+      }
+    });
+
+    // 11. Filter Pencarian, Reset Default & Logout
+    document.getElementById('search-tips').addEventListener('input', renderTipsTable);
+    document.getElementById('filter-category').addEventListener('change', renderTipsTable);
+
+    document.getElementById('btn-reset-tips').addEventListener('click', function() {
+      tipsList = [...defaultTipsData];
+      saveTipsToStorage();
+      renderTipsTable();
+      showCmsAlert('Daftar artikel Tips Hemat Energi dikembalikan ke pengaturan awal.');
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', function(e) {
+      e.preventDefault();
+      localStorage.removeItem(SESSION_KEY);
+      window.location.href = 'login.html';
+    });
+
+    // Inisialisasi Halaman
+    document.addEventListener('DOMContentLoaded', () => {
+      verifyAdminSession();
+      loadTipsFromStorage();
+      renderTipsTable();
+    });
+  </script>
+</body>
+</html>

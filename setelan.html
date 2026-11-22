@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pengaturan Sistem - Monitoring Listrik IoT</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --navy-dark: #0f172a;
+      --navy-primary: #1e3a8a;
+      --blue-accent: #2563eb;
+      --gold-accent: #facc15;
+      --bg-page: #eef2f6;
+      --border-soft: #cbd5e1;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--navy-dark);
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+
+    /* Topbar Navigasi */
+    .admin-topbar {
+      background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-primary) 65%, var(--blue-accent) 100%);
+      box-shadow: 0 4px 16px rgba(15, 23, 42, 0.2);
+    }
+
+    .brand-badge {
+      background-color: var(--gold-accent);
+      color: var(--navy-dark);
+      font-weight: 800;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+    }
+
+    .btn-back-dash {
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background-color: rgba(255, 255, 255, 0.08);
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-back-dash:hover {
+      background-color: var(--gold-accent);
+      border-color: var(--gold-accent);
+      color: var(--navy-dark);
+    }
+
+    /* Pil Status Koneksi & Profil */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.85rem;
+      background-color: #ffffff;
+      border: 1px solid var(--border-soft);
+      border-radius: 50px;
+      padding: 0.5rem 1rem;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+    }
+
+    .dot-indicator {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background-color: #22c55e;
+      box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.25);
+      display: inline-block;
+    }
+
+    .admin-avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background-color: var(--navy-primary);
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Kartu Pengaturan */
+    .setting-box {
+      background-color: #ffffff;
+      border: 1px solid var(--border-soft);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.06);
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .setting-title {
+      font-weight: 700;
+      font-size: 1.08rem;
+      color: var(--navy-dark);
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .setting-title i {
+      color: var(--navy-primary);
+      font-size: 1.15rem;
+    }
+
+    /* Input Form */
+    .form-control-clean,
+    .form-select-clean {
+      background-color: #f8fafc;
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+      padding: 0.6rem 0.85rem;
+      font-size: 0.92rem;
+    }
+
+    .form-control-clean:focus,
+    .form-select-clean:focus {
+      background-color: #ffffff;
+      border-color: var(--navy-primary);
+      box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.15);
+    }
+
+    /* Tombol Simpan Utama */
+    .btn-save-navy {
+      background-color: var(--navy-primary);
+      border: 1px solid var(--navy-primary);
+      color: #ffffff;
+      font-weight: 600;
+      font-size: 0.9rem;
+      padding: 0.55rem 1.35rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(30, 58, 138, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .btn-save-navy:hover,
+    .btn-save-navy:active {
+      background-color: var(--navy-dark);
+      border-color: var(--navy-dark);
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    /* Baris Info Key-Value */
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.65rem 0;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 0.9rem;
+    }
+
+    .info-row:last-of-type {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header Navigasi -->
+  <nav class="navbar navbar-dark admin-topbar sticky-top py-3">
+    <div class="container">
+      <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="index.html">
+        <span class="brand-badge">MoLi</span>
+        <span>Monitoring Listrik IoT</span>
+      </a>
+      <a href="index.html" class="btn btn-sm btn-back-dash d-inline-flex align-items-center gap-1">
+        <i class="bi bi-arrow-left"></i>
+        <span>Kembali ke Dashboard</span>
+      </a>
+    </div>
+  </nav>
+
+  <!-- Konten Utama Pengaturan -->
+  <main class="container py-4 py-md-5">
+
+    <!-- Judul Halaman & Status Pil -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end gap-3 mb-4">
+      <div>
+        <h2 class="fw-bold mb-1">Pengaturan Sistem</h2>
+        <p class="text-muted mb-3">Konfigurasi Akun Admin, Tarif Listrik Rumah, Proteksi Relay, dan Perangkat IoT</p>
+
+        <div class="status-pill">
+          <div class="d-flex align-items-center gap-2">
+            <span class="dot-indicator" id="conn-dot"></span>
+            <span class="fw-semibold text-success small" id="conn-label">Terkoneksi</span>
+          </div>
+          <div class="vr"></div>
+          <div class="lh-1">
+            <div class="fw-bold small" id="display-admin-name">admin</div>
+            <small class="text-muted" style="font-size: 0.72rem;">Administrator</small>
+          </div>
+          <span class="admin-avatar" id="display-admin-initials">AD</span>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" class="btn btn-outline-secondary btn-sm fw-medium" id="btn-reset-all">
+          <i class="bi bi-arrow-counterclockwise me-1"></i>Kembalikan Pengaturan Awal
+        </button>
+      </div>
+    </div>
+
+    <!-- Banner Notifikasi Simpan -->
+    <div id="feedback-banner" class="alert alert-success d-none align-items-center justify-content-between shadow-sm mb-4" role="alert">
+      <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-check-circle-fill" id="feedback-icon"></i>
+        <span id="feedback-text">Pengaturan berhasil disimpan.</span>
+      </div>
+      <button type="button" class="btn-close btn-sm" aria-label="Tutup" onclick="this.parentElement.classList.add('d-none')"></button>
+    </div>
+
+    <!-- Grid 6 Kartu Pengaturan -->
+    <div class="row g-4">
+
+      <!-- 1. Profil Administrator -->
+      <div class="col-12 col-lg-6">
+        <form class="setting-box" id="form-admin-profile">
+          <div>
+            <h5 class="setting-title"><i class="bi bi-person-lock"></i>Profil Administrator</h5>
+
+            <div class="mb-3">
+              <label for="admin-username" class="form-label fw-semibold small">Username</label>
+              <input type="text" class="form-control form-control-clean" id="admin-username" value="admin" required>
+            </div>
+
+            <div class="mb-3">
+              <label for="admin-old-pass" class="form-label fw-semibold small">Kata Sandi Lama</label>
+              <input type="password" class="form-control form-control-clean" id="admin-old-pass" placeholder="Masukkan sandi lama">
+            </div>
+
+            <div class="mb-4">
+              <label for="admin-new-pass" class="form-label fw-semibold small">Kata Sandi Baru</label>
+              <input type="password" class="form-control form-control-clean" id="admin-new-pass" placeholder="Kosongkan jika tidak diubah">
+            </div>
+          </div>
+
+          <div class="text-end">
+            <button type="submit" class="btn btn-save-navy">Simpan Profil</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 2. Operasional & Tarif Listrik -->
+      <div class="col-12 col-lg-6">
+        <form class="setting-box" id="form-tariff-ops">
+          <div>
+            <h5 class="setting-title"><i class="bi bi-lightning-charge"></i>Operasional & Tarif Listrik</h5>
+
+            <div class="row g-3 mb-3">
+              <div class="col-6">
+                <label for="power-group" class="form-label fw-semibold small">Golongan Daya (VA)</label>
+                <select class="form-select form-select-clean" id="power-group">
+                  <option value="900">900 VA (R-1M)</option>
+                  <option value="1300" selected>1.300 VA (R-1)</option>
+                  <option value="2200">2.200 VA (R-1)</option>
+                  <option value="3500">3.500 VA (R-2)</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label for="billing-reset-day" class="form-label fw-semibold small">Tanggal Reset Bulanan</label>
+                <input type="number" min="1" max="28" class="form-control form-control-clean" id="billing-reset-day" value="1" required>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="kwh-tariff" class="form-label fw-semibold small">Tarif Dasar Listrik (Rp / kWh)</label>
+              <input type="number" step="0.01" min="100" class="form-control form-control-clean" id="kwh-tariff" value="1444.70" required>
+            </div>
+
+            <div class="mb-4">
+              <label for="monthly-budget" class="form-label fw-semibold small">Batas Anggaran Bulanan (Rp)</label>
+              <input type="number" step="1000" min="10000" class="form-control form-control-clean" id="monthly-budget" value="500000" required>
+            </div>
+          </div>
+
+          <div class="text-end">
+            <button type="submit" class="btn btn-save-navy">Simpan Operasional</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 3. Proteksi Relay (Auto-Cutoff) -->
+      <div class="col-12 col-lg-6">
+        <form class="setting-box" id="form-relay-protection">
+          <div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="setting-title mb-0"><i class="bi bi-shield-check"></i>Proteksi Relay (Auto-Cutoff)</h5>
+              <div class="form-check form-switch mb-0">
+                <input class="form-check-input" type="checkbox" role="switch" id="relay-enabled" checked style="width: 2.5em; height: 1.3em;">
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="max-watt-limit" class="form-label fw-semibold small">Batas Daya Maksimal Sebelum Putus (Watt)</label>
+              <input type="number" min="200" max="10000" class="form-control form-control-clean" id="max-watt-limit" value="1200" required>
+              <small class="text-muted" style="font-size: 0.76rem;">Relay memutus arus otomatis sebelum MCB PLN turun (jeglek).</small>
+            </div>
+
+            <div class="row g-3 mb-4">
+              <div class="col-6">
+                <label for="min-voltage" class="form-label fw-semibold small">Tegangan Min Aman (V)</label>
+                <input type="number" min="150" max="210" class="form-control form-control-clean" id="min-voltage" value="190" required>
+              </div>
+              <div class="col-6">
+                <label for="max-voltage" class="form-label fw-semibold small">Tegangan Maks Aman (V)</label>
+                <input type="number" min="225" max="260" class="form-control form-control-clean" id="max-voltage" value="240" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-end">
+            <button type="submit" class="btn btn-save-navy">Simpan Proteksi</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 4. Peringatan Dini (Alert Anggaran) -->
+      <div class="col-12 col-lg-6">
+        <form class="setting-box" id="form-alert-rules">
+          <div>
+            <h5 class="setting-title"><i class="bi bi-bell"></i>Peringatan Dini (Alert)</h5>
+
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label for="alert-threshold" class="form-label fw-semibold small mb-0">Ambang Peringatan Anggaran</label>
+                <span class="badge bg-warning text-dark fw-bold" id="threshold-preview">80% (Rp 400.000)</span>
+              </div>
+              <input type="range" class="form-range" min="50" max="95" step="5" value="80" id="alert-threshold">
+            </div>
+
+            <label class="form-label fw-semibold small mb-2">Saluran Notifikasi Aktif</label>
+            <div class="d-flex flex-column gap-2 mb-4">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="channel-web" checked>
+                <label class="form-check-label small" for="channel-web">Notifikasi Pop-up pada Dashboard Web</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="channel-buzzer" checked>
+                <label class="form-check-label small" for="channel-buzzer">Alarm Buzzer pada Perangkat ESP32</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="channel-bot">
+                <label class="form-check-label small" for="channel-bot">Pesan Otomatis Telegram / WhatsApp</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-end">
+            <button type="submit" class="btn btn-save-navy">Simpan Notifikasi</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 5. Konektivitas IoT & Broker MQTT -->
+      <div class="col-12 col-lg-6">
+        <form class="setting-box" id="form-iot-mqtt">
+          <div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h5 class="setting-title mb-0"><i class="bi bi-router"></i>Konektivitas IoT & MQTT</h5>
+              <span class="badge bg-success-subtle text-success" id="mqtt-badge">Online (MQTT)</span>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-8">
+                <label for="mqtt-host" class="form-label fw-semibold small">Host / IP Broker MQTT</label>
+                <input type="text" class="form-control form-control-clean font-monospace" id="mqtt-host" value="192.168.1.105" required>
+              </div>
+              <div class="col-4">
+                <label for="mqtt-port" class="form-label fw-semibold small">Port</label>
+                <input type="number" class="form-control form-control-clean font-monospace" id="mqtt-port" value="1883" required>
+              </div>
+            </div>
+
+            <div class="row g-2 mb-3">
+              <div class="col-7">
+                <label for="mqtt-topic" class="form-label fw-semibold small">Topik Sensor Utama</label>
+                <input type="text" class="form-control form-control-clean font-monospace" id="mqtt-topic" value="rumah/listrik/pzem004t" required>
+              </div>
+              <div class="col-5">
+                <label for="update-interval" class="form-label fw-semibold small">Interval Kirim</label>
+                <select class="form-select form-select-clean" id="update-interval">
+                  <option value="5" selected>5 Detik</option>
+                  <option value="10">10 Detik</option>
+                  <option value="30">30 Detik</option>
+                  <option value="60">1 Menit</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-check form-switch pt-2 border-top d-flex align-items-center gap-2 mb-3">
+              <input class="form-check-input mt-0" type="checkbox" role="switch" id="system-active-switch" checked style="width: 2.4em; height: 1.25em;">
+              <label class="form-check-label fw-semibold small" for="system-active-switch" id="system-mode-text">
+                Mode Sistem : Pemantauan Aktif
+              </label>
+            </div>
+          </div>
+
+          <div class="text-end">
+            <button type="submit" class="btn btn-save-navy">Simpan Koneksi</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 6. Pemeliharaan & Sensor -->
+      <div class="col-12 col-lg-6">
+        <div class="setting-box">
+          <div>
+            <h5 class="setting-title"><i class="bi bi-cpu"></i>Pemeliharaan & Sensor</h5>
+
+            <div class="info-row">
+              <span class="text-muted fw-medium">Sensor Arus PZEM-004T (Jalur Utama)</span>
+              <span class="fw-bold text-success" id="pzem-status">Aktif - Terkalibrasi</span>
+            </div>
+
+            <div class="info-row">
+              <span class="text-muted fw-medium">Mikrokontroler ESP32 & Relay Proteksi</span>
+              <span class="fw-bold" id="esp-status">Aktif - 220.4 V</span>
+            </div>
+
+            <div class="info-row mb-4">
+              <span class="text-muted fw-medium">Firmware Perangkat</span>
+              <span class="font-monospace fw-semibold">v2.4.1-stable</span>
+            </div>
+          </div>
+
+          <div class="d-flex flex-wrap justify-content-end gap-2">
+            <button type="button" class="btn btn-warning fw-semibold text-dark px-3" id="btn-calibrate">
+              <i class="bi bi-sliders me-1"></i>Kalibrasi Sensor
+            </button>
+            <button type="button" class="btn btn-danger fw-semibold px-3" data-bs-toggle="modal" data-bs-target="#restartModal">
+              <i class="bi bi-arrow-repeat me-1"></i>Restart Mikrokontroler
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Modal Konfirmasi Restart ESP32 -->
+  <div class="modal fade" id="restartModal" tabindex="-1" aria-labelledby="restartModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-danger text-white">
+          <h6 class="modal-title fw-bold" id="restartModalLabel">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i>Konfirmasi Restart Mikrokontroler
+          </h6>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-1">Yakin ingin melakukan restart pada modul <strong>ESP32</strong> sekarang?</p>
+          <small class="text-muted">Pembacaan sensor dan proteksi relay akan berhenti sementara selama ±5 detik saat perangkat boot ulang.</small>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light border" data-bs-dismiss="modal">Batal</button>
+          <button type="button" class="btn btn-danger fw-semibold" id="btn-confirm-restart" data-bs-dismiss="modal">Ya, Restart Sekarang</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const SETTINGS_KEY = 'voltguard_admin_settings';
+
+    const defaultConfig = {
+      username: 'admin',
+      powerGroup: '1300',
+      resetDay: 1,
+      tariff: 1444.70,
+      budget: 500000,
+      relayEnabled: true,
+      maxWatt: 1200,
+      minVolt: 190,
+      maxVolt: 240,
+      alertThreshold: 80,
+      channelWeb: true,
+      channelBuzzer: true,
+      channelBot: false,
+      mqttHost: '192.168.1.105',
+      mqttPort: 1883,
+      mqttTopic: 'rumah/listrik/pzem004t',
+      interval: '5',
+      systemActive: true
+    };
+
+    let config = { ...defaultConfig };
+
+    // Tampilkan notifikasi feedback
+    function notify(message, variant = 'success') {
+      const banner = document.getElementById('feedback-banner');
+      const textEl = document.getElementById('feedback-text');
+      const iconEl = document.getElementById('feedback-icon');
+
+      banner.className = `alert alert-${variant} d-flex align-items-center justify-content-between shadow-sm mb-4`;
+      iconEl.className = variant === 'warning'
+        ? 'bi bi-exclamation-triangle-fill'
+        : 'bi bi-check-circle-fill';
+      textEl.textContent = message;
+    }
+
+    // Simpan ke localStorage
+    function persistConfig() {
+      localStorage.setItem(SETTINGS_KEY, JSON.stringify(config));
+    }
+
+    // Hitung ulang preview ambang anggaran
+    function refreshThresholdBadge() {
+      const pct = Number(document.getElementById('alert-threshold').value);
+      const budget = Number(document.getElementById('monthly-budget').value) || config.budget;
+      const rupiah = Math.round((pct / 100) * budget);
+      document.getElementById('threshold-preview').textContent = `${pct}% (Rp ${rupiah.toLocaleString('id-ID')})`;
+    }
+
+    // Terapkan state ke elemen tampilan
+    function syncUI() {
+      const initials = config.username.slice(0, 2).toUpperCase();
+      document.getElementById('admin-username').value = config.username;
+      document.getElementById('display-admin-name').textContent = config.username;
+      document.getElementById('display-admin-initials').textContent = initials;
+
+      document.getElementById('power-group').value = config.powerGroup;
+      document.getElementById('billing-reset-day').value = config.resetDay;
+      document.getElementById('kwh-tariff').value = config.tariff;
+      document.getElementById('monthly-budget').value = config.budget;
+
+      document.getElementById('relay-enabled').checked = config.relayEnabled;
+      document.getElementById('max-watt-limit').value = config.maxWatt;
+      document.getElementById('min-voltage').value = config.minVolt;
+      document.getElementById('max-voltage').value = config.maxVolt;
+
+      document.getElementById('alert-threshold').value = config.alertThreshold;
+      document.getElementById('channel-web').checked = config.channelWeb;
+      document.getElementById('channel-buzzer').checked = config.channelBuzzer;
+      document.getElementById('channel-bot').checked = config.channelBot;
+      refreshThresholdBadge();
+
+      document.getElementById('mqtt-host').value = config.mqttHost;
+      document.getElementById('mqtt-port').value = config.mqttPort;
+      document.getElementById('mqtt-topic').value = config.mqttTopic;
+      document.getElementById('update-interval').value = config.interval;
+      document.getElementById('system-active-switch').checked = config.systemActive;
+      document.getElementById('system-mode-text').textContent = config.systemActive
+        ? 'Mode Sistem : Pemantauan Aktif'
+        : 'Mode Sistem : Mode Siaga / Hemat';
+    }
+
+    // Muat pengaturan tersimpan saat halaman dibuka
+    function initSettings() {
+      const raw = localStorage.getItem(SETTINGS_KEY);
+      if (raw) {
+        try {
+          config = { ...defaultConfig, ...JSON.parse(raw) };
+        } catch (e) {
+          config = { ...defaultConfig };
+        }
+      }
+      syncUI();
+    }
+
+    // 1. Submit Profil Administrator
+    document.getElementById('form-admin-profile').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const usernameVal = document.getElementById('admin-username').value.trim();
+      const oldPass = document.getElementById('admin-old-pass').value;
+      const newPass = document.getElementById('admin-new-pass').value;
+
+      if (!usernameVal) return;
+      if (newPass && !oldPass) {
+        notify('Masukkan kata sandi lama terlebih dahulu untuk mengganti kata sandi.', 'warning');
+        return;
+      }
+
+      config.username = usernameVal;
+      persistConfig();
+      syncUI();
+      document.getElementById('admin-old-pass').value = '';
+      document.getElementById('admin-new-pass').value = '';
+      notify(`Profil administrator "${usernameVal}" berhasil diperbarui.`);
+    });
+
+    // 2. Submit Operasional & Tarif Listrik
+    document.getElementById('form-tariff-ops').addEventListener('submit', function(e) {
+      e.preventDefault();
+      config.powerGroup = document.getElementById('power-group').value;
+      config.resetDay = Number(document.getElementById('billing-reset-day').value) || 1;
+      config.tariff = parseFloat(document.getElementById('kwh-tariff').value) || 1444.70;
+      config.budget = Number(document.getElementById('monthly-budget').value) || 500000;
+
+      persistConfig();
+      refreshThresholdBadge();
+      notify(`Tarif listrik Rp ${config.tariff.toLocaleString('id-ID')}/kWh & daya ${config.powerGroup} VA berhasil disimpan.`);
+    });
+
+    // 3. Submit Proteksi Relay
+    document.getElementById('form-relay-protection').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const minV = Number(document.getElementById('min-voltage').value);
+      const maxV = Number(document.getElementById('max-voltage').value);
+
+      if (minV >= maxV) {
+        notify('Tegangan minimum harus lebih kecil daripada tegangan maksimum.', 'warning');
+        return;
+      }
+
+      config.relayEnabled = document.getElementById('relay-enabled').checked;
+      config.maxWatt = Number(document.getElementById('max-watt-limit').value) || 1200;
+      config.minVolt = minV;
+      config.maxVolt = maxV;
+
+      persistConfig();
+      notify(`Proteksi Relay (${config.relayEnabled ? 'Aktif' : 'Nonaktif'}) disimpan: Maks ${config.maxWatt} W (${minV}–${maxV} V).`);
+    });
+
+    // 4. Submit Peringatan Dini
+    document.getElementById('alert-threshold').addEventListener('input', refreshThresholdBadge);
+    document.getElementById('monthly-budget').addEventListener('input', refreshThresholdBadge);
+
+    document.getElementById('form-alert-rules').addEventListener('submit', function(e) {
+      e.preventDefault();
+      config.alertThreshold = Number(document.getElementById('alert-threshold').value);
+      config.channelWeb = document.getElementById('channel-web').checked;
+      config.channelBuzzer = document.getElementById('channel-buzzer').checked;
+      config.channelBot = document.getElementById('channel-bot').checked;
+
+      persistConfig();
+      notify(`Ambang peringatan anggaran ${config.alertThreshold}% dan saluran notifikasi berhasil disimpan.`);
+    });
+
+    // 5. Submit Konektivitas IoT & MQTT
+    document.getElementById('form-iot-mqtt').addEventListener('submit', function(e) {
+      e.preventDefault();
+      config.mqttHost = document.getElementById('mqtt-host').value.trim();
+      config.mqttPort = Number(document.getElementById('mqtt-port').value) || 1883;
+      config.mqttTopic = document.getElementById('mqtt-topic').value.trim();
+      config.interval = document.getElementById('update-interval').value;
+      config.systemActive = document.getElementById('system-active-switch').checked;
+
+      persistConfig();
+      syncUI();
+      notify(`Konfigurasi MQTT (${config.mqttHost}:${config.mqttPort}) berhasil disimpan.`);
+    });
+
+    // 6. Kalibrasi Sensor PZEM-004T
+    document.getElementById('btn-calibrate').addEventListener('click', function() {
+      const pzemEl = document.getElementById('pzem-status');
+      pzemEl.textContent = 'Mengkalibrasi titik nol...';
+      pzemEl.className = 'fw-bold text-warning';
+
+      setTimeout(() => {
+        pzemEl.textContent = 'Aktif - Terkalibrasi (0.00 A)';
+        pzemEl.className = 'fw-bold text-success';
+        notify('Kalibrasi sensor arus PZEM-004T selesai.');
+      }, 1200);
+    });
+
+    // 7. Restart Mikrokontroler ESP32
+    document.getElementById('btn-confirm-restart').addEventListener('click', function() {
+      const connDot = document.getElementById('conn-dot');
+      const connLabel = document.getElementById('conn-label');
+      const mqttBadge = document.getElementById('mqtt-badge');
+      const espEl = document.getElementById('esp-status');
+
+      connDot.style.backgroundColor = '#facc15';
+      connLabel.textContent = 'Menghubungkan ulang...';
+      connLabel.className = 'fw-semibold text-warning small';
+      mqttBadge.textContent = 'Reconnecting...';
+      mqttBadge.className = 'badge bg-warning-subtle text-warning';
+      espEl.textContent = 'Rebooting ESP32...';
+
+      setTimeout(() => {
+        connDot.style.backgroundColor = '#22c55e';
+        connLabel.textContent = 'Terkoneksi';
+        connLabel.className = 'fw-semibold text-success small';
+        mqttBadge.textContent = 'Online (MQTT)';
+        mqttBadge.className = 'badge bg-success-subtle text-success';
+        espEl.textContent = 'Aktif - 220.4 V';
+        notify('Mikrokontroler ESP32 berhasil di-restart dan terhubung kembali ke MQTT.');
+      }, 2000);
+    });
+
+    // 8. Reset Pengaturan Default
+    document.getElementById('btn-reset-all').addEventListener('click', function() {
+      localStorage.removeItem(SETTINGS_KEY);
+      config = { ...defaultConfig };
+      syncUI();
+      notify('Semua pengaturan dikembalikan ke nilai awal.');
+    });
+
+    document.addEventListener('DOMContentLoaded', initSettings);
+    
+    // Pastikan hanya Admin yang dapat membuka halaman pengaturan
+(function guardAdminPage() {
+  const rawSession = localStorage.getItem('voltguard_session');
+  if (!rawSession) {
+    window.location.href = 'login.html';
+    return;
+  }
+  const session = JSON.parse(rawSession);
+  if (session.role !== 'admin') {
+    window.location.href = 'index.html';
+  }
+})();
+  </script>
+</body>
+</html>
